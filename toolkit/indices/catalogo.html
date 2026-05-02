@@ -1,0 +1,121 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>toolkit roxymaster v8.3</title>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--text:#c9d1d9;--acento:#8b5cf6;--borde:#30363d}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;margin:0;padding:20px}
+h1{color:var(--acento)}
+.filtros{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.filtros select,.filtros input{background:var(--card);color:var(--text);border:1px solid var(--borde);padding:6px 12px;border-radius:6px}
+.filtros input{width:260px}
+.recurso{background:var(--card);border:1px solid var(--borde);border-radius:8px;padding:16px;margin-bottom:12px;cursor:pointer}
+.recurso:hover{border-color:var(--acento)}
+.recurso h3{margin:0;color:var(--acento);font-size:1.1em}
+.recurso .tipo{display:inline-block;background:#21262d;color:#8b949e;padding:2px 8px;border-radius:12px;font-size:.75em;margin-left:8px}
+.recurso .desc{margin:8px 0 4px;font-size:.9em;color:#acb4be}
+.recurso .detalle{display:none;margin-top:12px;border-top:1px solid var(--borde);padding-top:12px}
+.recurso.abierto .detalle{display:block}
+pre{background:#0d1117;border:1px solid var(--borde);border-radius:6px;padding:12px;overflow-x:auto;font-size:.85em;white-space:pre-wrap}
+.btn-copiar{background:var(--acento);color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;margin-top:8px;font-size:.8em}
+.btn-copiar:hover{opacity:.9}
+.toast{position:fixed;bottom:20px;right:20px;padding:12px 20px;border-radius:6px;color:#fff;z-index:9999;background:#3fb950;animation:desvanecer 2s forwards}
+@keyframes desvanecer{0%,80%{opacity:1}100%{opacity:0}}
+</style>
+</head>
+<body>
+<h1>toolkit roxymaster v8.3</h1>
+<h2 style="font-weight:400;font-size:1em;color:#8b949e;margin-top:-10px">recursos reutilizables - piezas listas para armar</h2>
+<div class="filtros">
+<input type="text" id="busqueda" placeholder="buscar recurso..." oninput="filtrar()">
+<select id="filtroTipo" onchange="filtrar()">
+<option value="todos">todos los tipos</option>
+<option value="base de datos">base de datos</option>
+<option value="modulo">modulo</option>
+<option value="plantilla">plantilla</option>
+<option value="componente ui">componente ui</option>
+<option value="solucion">solucion</option>
+<option value="script utilidad">script utilidad</option>
+<option value="libreria externa">libreria externa</option>
+</select>
+</div>
+<div id="lista"></div>
+<script>
+var r=[
+{n:"esquema_usuarios.sql",t:"base de datos",d:"Tablas usuarios, sesiones y roles.",i:"sqlite3 data/roxymaster.db < bases_de_datos/esquema_usuarios.sql",f:"bases_de_datos/esquema_usuarios.sql",e:"CREATE TABLE usuarios (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, rol TEXT DEFAULT 'usuario');"},
+{n:"esquema_wallets.sql",t:"base de datos",d:"Tablas wallets, transacciones y reserva.",i:"sqlite3 data/roxymaster.db < bases_de_datos/esquema_wallets.sql",f:"bases_de_datos/esquema_wallets.sql",e:"CREATE TABLE wallets (id INTEGER PRIMARY KEY AUTOINCREMENT, usuario_id INTEGER UNIQUE NOT NULL, balance REAL DEFAULT 0);"},
+{n:"esquema_marketplace.sql",t:"base de datos",d:"Tablas ofertas y ordenes marketplace.",i:"sqlite3 data/roxymaster.db < bases_de_datos/esquema_marketplace.sql",f:"bases_de_datos/esquema_marketplace.sql",e:"CREATE TABLE ofertas_marketplace (id INTEGER PRIMARY KEY AUTOINCREMENT, uid_vendedor INTEGER NOT NULL, cantidad_kbt REAL NOT NULL, precio_pen REAL NOT NULL, tipo TEXT DEFAULT 'venta');"},
+{n:"esquema_perfiles.sql",t:"base de datos",d:"Tablas perfiles y pcbots registrados.",i:"sqlite3 data/roxymaster.db < bases_de_datos/esquema_perfiles.sql",f:"bases_de_datos/esquema_perfiles.sql",e:"CREATE TABLE perfiles (id INTEGER PRIMARY KEY AUTOINCREMENT, usuario_id INTEGER NOT NULL, hash_id TEXT UNIQUE, estado TEXT DEFAULT 'inactivo');"},
+{n:"esquema_referidos.sql",t:"base de datos",d:"Tablas referidos y códigos de referido.",i:"sqlite3 data/roxymaster.db < bases_de_datos/esquema_referidos.sql",f:"bases_de_datos/esquema_referidos.sql",e:"CREATE TABLE referidos (id INTEGER PRIMARY KEY AUTOINCREMENT, referidor_id INTEGER NOT NULL, referido_id INTEGER NOT NULL UNIQUE, nivel INTEGER NOT NULL);"},
+{n:"esquema_variables.sql",t:"base de datos",d:"Tabla variables_globales con valores por defecto.",i:"sqlite3 data/roxymaster.db < bases_de_datos/esquema_variables.sql",f:"bases_de_datos/esquema_variables.sql",e:"INSERT OR IGNORE INTO variables_globales (clave, valor) VALUES ('k', '20.00'), ('fx', '3.70');"},
+{n:"esquema_seguridad.sql",t:"base de datos",d:"Tablas eventos_seguridad y logs_admin.",i:"sqlite3 data/roxymaster.db < bases_de_datos/esquema_seguridad.sql",f:"bases_de_datos/esquema_seguridad.sql",e:"CREATE TABLE eventos_seguridad (id INTEGER PRIMARY KEY AUTOINCREMENT, tipo TEXT NOT NULL, detalle TEXT);"},
+{n:"esquema_mensajes.sql",t:"base de datos",d:"Tablas mensajes_admin y mensajes_usuarios.",i:"sqlite3 data/roxymaster.db < bases_de_datos/esquema_mensajes.sql",f:"bases_de_datos/esquema_mensajes.sql",e:"CREATE TABLE mensajes_admin (id INTEGER PRIMARY KEY AUTOINCREMENT, texto TEXT NOT NULL, alcance TEXT DEFAULT 'todos');"},
+{n:"auth_jwt.py",t:"modulo",d:"Crear y verificar tokens JWT.",i:"pip install python-jose passlib[bcrypt]",f:"https://github.com/mpdavis/python-jose",e:"from modulos.auth_jwt import crear_token, verificar_token\ntoken = crear_token(uid=1, rol='admin')"},
+{n:"db_sqlite_async.py",t:"modulo",d:"Conexión async a SQLite con aiosqlite.",i:"pip install aiosqlite",f:"https://github.com/omnilib/aiosqlite",e:"from modulos.db_sqlite_async import DBAsync\ndb = DBAsync('data/app.db')"},
+{n:"hmac_signer.py",t:"modulo",d:"Firmador y verificador HMAC-SHA256.",i:"stdlib",f:"https://docs.python.org/3/library/hmac.html",e:"from modulos.hmac_signer import HmacSigner\ns = HmacSigner('secreto')"},
+{n:"rate_limiter.py",t:"modulo",d:"Limitador de tasa para FastAPI.",i:"stdlib",f:"Implementación propia",e:"from modulos.rate_limiter import RateLimiter\nrl = RateLimiter(max=10)"},
+{n:"logger_async.py",t:"modulo",d:"Logging asíncrono en JSON.",i:"stdlib",f:"https://docs.python.org/3/howto/logging.html",e:"from modulos.logger_async import AsyncJsonLogger"},
+{n:"cifrador_aes.py",t:"modulo",d:"Cifrado AES-256-GCM.",i:"pip install pycryptodome",f:"https://github.com/Legrandin/pycryptodome",e:"from modulos.cifrador_aes import CifradorAES"},
+{n:"validador_email.py",t:"modulo",d:"Validación de formato email.",i:"stdlib",f:"Implementación propia",e:"from modulos.validador_email import es_email_valido"},
+{n:"generador_hash.py",t:"modulo",d:"Hash SHA256 único por perfil.",i:"stdlib",f:"Implementación propia",e:"from modulos.generador_hash import generar_hash\nh = generar_hash('pcwilmer','cyber','perfil_1')"},
+{n:"api_crud_base.py",t:"plantilla",d:"Endpoint CRUD genérico FastAPI.",i:"Copiar y renombrar.",f:"https://github.com/tiangolo/fastapi",e:"from plantillas.api_crud_base import router\napp.include_router(router, prefix='/api/tabla')"},
+{n:"panel_admin_base.html",t:"plantilla",d:"HTML base para dashboard.",i:"Usar como esqueleto.",f:"https://github.com/martinkiiru",e:"<!-- Reemplazar {TITULO}, {MENU}, {CONTENIDO} -->"},
+{n:"worker_async_base.py",t:"plantilla",d:"Agente async con WebSocket.",i:"Base para pcbot/main.py.",f:"https://github.com/python-websockets/websockets",e:"from plantillas.worker_async_base import AgenteAsync"},
+{n:"config_secrets_base.json",t:"plantilla",d:"Plantilla de archivo de secretos.",i:"Copiar a data/secrets/cliente.json.",f:"Implementación propia",e:'{"pcmaster_tailscale_ip":"100.111.179.65","pcmaster_ws_port":5006}'},
+{n:"docker-compose.yml",t:"plantilla",d:"Orquestación API+Redis+PostgreSQL.",i:"Copiar a raíz del proyecto.",f:"https://docs.docker.com/compose/",e:"version: '3.8'\nservices:\n  api:\n    build: .\n    ports: ['8086:8086']"},
+{n:"test_unitario_base.py",t:"plantilla",d:"Prueba unitaria con pytest+httpx.",i:"pip install pytest httpx",f:"https://github.com/pytest-dev/pytest",e:"import pytest\nfrom httpx import AsyncClient"},
+{n:"toast_notificaciones.js",t:"componente ui",d:"Notificaciones toast.",i:"Incluir script.",f:"Dashboards vanilla JS",e:"mostrarToast('exito','success');"},
+{n:"modal_confirmacion.js",t:"componente ui",d:"Modal de confirmación si/no.",i:"Incluir script.",f:"Patrón dashboards",e:"mostrarModal('titulo','texto',cbSi,cbNo);"},
+{n:"tabla_editable.js",t:"componente ui",d:"Tabla HTML editable doble clic.",i:"Incluir script.",f:"Implementación propia",e:"new TablaEditable('#tabla','/api/usuarios');"},
+{n:"tabs_navegacion.js",t:"componente ui",d:"Sistema de pestañas.",i:"Incluir script.",f:"Patrón dashboards",e:"new Tabs('#contenedor');"},
+{n:"tema_oscuro.css",t:"componente ui",d:"Variables CSS tema ROXYMASTER.",i:"Incluir link.",f:"Paleta ROXYMASTER",e:'<body class="tema-oscuro">'},
+{n:"dashboard_responsive.html",t:"componente ui",d:"Layout responsivo con menú colapsable.",i:"Usar como esqueleto.",f:"Patrón Bootstrap vanilla",e:'<div class="layout"><nav class="sidebar">...</nav></div>'},
+{n:"dashboard_base.html",t:"solucion",d:"Portal usuario: login, registro, 7 pestañas.",i:"Copiar como portal.html en pcbot.",f:"Adaptado de martinkiiru/Admin-Dashboard",e:"fetch(API+'/login',{method:'POST',body:JSON.stringify({email,password})})"},
+{n:"websocket_ejemplo.md",t:"solucion",d:"Ejemplo servidor/cliente WebSocket.",i:"Leer documentación.",f:"https://pypi.org/project/websockets/",e:"async def handler(ws,path): async for msg in ws: await ws.send(msg)"},
+{n:"limpiar_pycache.ps1",t:"script utilidad",d:"Elimina carpetas __pycache__.",i:"Ejecutar con PowerShell.",f:"Implementación propia",e:".\\scripts_utilidad\\limpiar_pycache.ps1"},
+{n:"respaldar_bd.ps1",t:"script utilidad",d:"Copia roxymaster.db con timestamp.",i:"Ejecutar con PowerShell.",f:"Implementación propia",e:".\\scripts_utilidad\\respaldar_bd.ps1"},
+{n:"verificar_puertos.ps1",t:"script utilidad",d:"Comprueba puertos 8086 y 5006.",i:"Ejecutar con PowerShell.",f:"Implementación propia",e:".\\scripts_utilidad\\verificar_puertos.ps1"},
+{n:"healthcheck_roxymaster.py",t:"script utilidad",d:"Endpoint salud FastAPI.",i:"Copiar a scripts/.",f:"Implementación propia",e:"from scripts.healthcheck import router\napp.include_router(router)"},
+{n:"seed_roxymaster.ps1",t:"script utilidad",d:"Poblar BD con datos iniciales.",i:"Ejecutar una vez.",f:"Implementación propia",e:".\\scripts_utilidad\\seed_roxymaster.ps1"},
+{n:"deploy_tailscale.ps1",t:"script utilidad",d:"Instalar Tailscale en nodo nuevo.",i:"Ejecutar como Admin.",f:"https://tailscale.com/download",e:".\\scripts_utilidad\\deploy_tailscale.ps1"},
+{n:"monitor_recursos.ps1",t:"script utilidad",d:"Monitorear CPU/RAM procesos Python.",i:"Ejecutar con PowerShell.",f:"Implementación propia",e:".\\scripts_utilidad\\monitor_recursos.ps1"},
+{n:"lista_librerias.md",t:"libreria externa",d:"Tabla con 10 librerías útiles.",i:"Consultar.",f:"Varios repositorios",e:"fastapi, uvicorn, websockets, aiosqlite, python-jose..."},
+{n:"fastapi_users.md",t:"libreria externa",d:"Guía integración FastAPI Users.",i:"pip install fastapi-users",f:"https://github.com/fastapi-users/fastapi-users",e:"from fastapi_users import FastAPIUsers"},
+{n:"websockets.md",t:"libreria externa",d:"Ejemplo servidor/cliente WebSocket.",i:"pip install websockets",f:"https://github.com/python-websockets/websockets",e:"async with websockets.connect(uri) as ws:"},
+{n:"test_api.http",t:"libreria externa",d:"Peticiones HTTP VSCode REST Client.",i:"Instalar extensión REST Client.",f:"https://marketplace.visualstudio.com/items?itemName=humao.rest-client",e:"POST http://localhost:8086/api/login"}
+];
+
+function render(l) {
+  var d = document.getElementById('lista'), h = '';
+  for (var i = 0; i < l.length; i++) {
+    var x = l[i];
+    h += '<div class="recurso" onclick="this.classList.toggle(\'abierto\')"><h3>' + x.n + '<span class="tipo">' + x.t + '</span></h3><p class="desc">' + x.d + '</p><div class="detalle"><p><b>ruta:</b> ' + x.f + '</p><p><b>instalacion:</b> ' + x.i + '</p><p><b>ejemplo:</b></p><pre>' + x.e.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</pre><button class="btn-copiar" onclick="event.stopPropagation(); navigator.clipboard.writeText(\'' + x.e.replace(/\\/g,'\\\\').replace(/'/g,"\\'") + '\'); mostrarToast(\'copiado\')">copiar ejemplo</button></div></div>';
+  }
+  d.innerHTML = h;
+}
+
+function filtrar() {
+  var t = document.getElementById('busqueda').value.toLowerCase();
+  var p = document.getElementById('filtroTipo').value;
+  var f = [];
+  for (var i = 0; i < r.length; i++) {
+    var x = r[i];
+    if ((p === 'todos' || x.t === p) && (x.n.toLowerCase().indexOf(t) !== -1 || x.d.toLowerCase().indexOf(t) !== -1)) f.push(x);
+  }
+  render(f);
+}
+
+function mostrarToast(m) {
+  var t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = m;
+  document.body.appendChild(t);
+  setTimeout(function() { t.remove(); }, 2000);
+}
+
+render(r);
+</script>
+</body>
+</html>

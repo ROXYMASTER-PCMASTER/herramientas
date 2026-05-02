@@ -1,0 +1,1 @@
+﻿$puertos = @(8086, 5006); foreach ($p in $puertos) { $con = Get-NetTCPConnection -LocalPort $p -ErrorAction SilentlyContinue; if ($con) { Write-Host "puerto $p OCUPADO por PID $($con.OwningProcess)" -ForegroundColor Red } else { Write-Host "puerto $p libre" -ForegroundColor Green } }

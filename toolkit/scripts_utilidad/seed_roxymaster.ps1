@@ -1,0 +1,1 @@
+﻿$db = "C:\Users\PCMASTER\Desktop\roxymaster\pcmaster\data\roxymaster.db"; sqlite3 $db "INSERT OR IGNORE INTO usuarios (email, password_hash, rol) VALUES ('admin@roxymaster.local', 'hash_aqui', 'admin'); INSERT OR IGNORE INTO wallets (usuario_id, balance, minado_total) VALUES (1, 1000000.0, 1000000.0);"; Write-Host "base de datos poblada"

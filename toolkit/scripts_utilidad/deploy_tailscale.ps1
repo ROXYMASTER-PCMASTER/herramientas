@@ -1,0 +1,1 @@
+﻿Write-Host "descargando tailscale..."; Invoke-WebRequest -Uri "https://pkgs.tailscale.com/stable/tailscale-setup-latest.exe" -OutFile "$env:TEMP\tailscale.exe"; Start-Process "$env:TEMP\tailscale.exe" -ArgumentList "/quiet" -Wait; tailscale up; Write-Host "tailscale instalado y conectado"

@@ -1,0 +1,1 @@
+﻿$origen = "C:\Users\PCMASTER\Desktop\roxymaster\pcmaster\data\roxymaster.db"; $dest = "C:\Users\PCMASTER\Desktop\roxymaster\pcmaster\data\backups\roxymaster_" + (Get-Date -Format "yyyyMMdd_HHmmss") + ".db"; New-Item -ItemType Directory -Force (Split-Path $dest) | Out-Null; Copy-Item $origen $dest; Write-Host "respaldo creado: $dest"

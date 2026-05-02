@@ -1,25 +1,14 @@
 ﻿{
   "toolkit": "roxymaster v8.3",
-  "actualizado": "2026-05-02",
-  "soluciones_descargadas": {
-    "dashboard_usuario": {
-      "fuente": "https://github.com/martinkiiru/Admin-Dashboard-with-Database-Integration-",
-      "archivos": ["index.html", "styles.css", "script.js"],
-      "proposito": "base para el portal.html del usuario en pcbot"
-    },
-    "websocket_ejemplo": {
-      "fuente": "https://github.com/python-websockets/websockets",
-      "archivos": ["server.py", "client.py"],
-      "proposito": "base para reparar ws_handler.py en pcmaster y ws_client.py en pcbot"
-    }
-  },
+  "actualizado": "2026-05-03",
   "carpetas": {
-    "bases_de_datos": "8 schemas sql",
-    "modulos": "auth_jwt, db_sqlite_async, hmac_signer, rate_limiter, logger_async, cifrador_aes, validador_email, generador_hash",
-    "plantillas": "api_crud_base, panel_admin_html, worker_async, config_secrets, docker-compose, test_unitario",
-    "componentes_ui": "toast, modal, tabla_editable, tabs, tema_oscuro, dashboard_responsive",
-    "scripts_utilidad": "seed, healthcheck, limpiar_logs, migrar_db, limpiar_pycache, respaldar_bd, verificar_puertos",
-    "soluciones": "dashboard_usuario, websocket_ejemplo, sistema_usuarios, marketplace_p2p, venta_tokens, utilidades_conexion",
-    "librerias_externas": "lista_librerias, fastapi_users, websockets, test_api_http"
-  }
+    "bases_de_datos": {"desc": "8 esquemas SQL", "archivos": ["esquema_usuarios.sql", "esquema_wallets.sql", "esquema_marketplace.sql", "esquema_perfiles.sql", "esquema_referidos.sql", "esquema_variables.sql", "esquema_seguridad.sql", "esquema_mensajes.sql"]},
+    "componentes_ui": {"desc": "widgets HTML/CSS/JS", "archivos": ["toast_notificaciones.js", "modal_confirmacion.js", "tabla_editable.js", "tabs_navegacion.js", "tema_oscuro.css", "plantilla_dashboard_responsive.html"]},
+    "modulos": {"desc": "piezas de lógica reutilizable", "archivos": ["auth_jwt.py", "db_sqlite_async.py", "hmac_signer.py", "rate_limiter.py", "logger_async.py", "cifrador_aes.py", "validador_email.py", "generador_hash.py"]},
+    "plantillas": {"desc": "código base para nuevos módulos", "archivos": ["api_crud_base.py", "panel_admin_base.html", "worker_async_base.py", "config_secrets_base.json", "docker-compose.yml", "test_unitario_base.py"]},
+    "scripts_utilidad": {"desc": "herramientas de mantenimiento", "archivos": ["limpiar_pycache.ps1", "respaldar_bd.ps1", "verificar_puertos.ps1", "healthcheck_roxymaster.py", "seed_roxymaster.ps1", "deploy_tailscale.ps1", "monitor_recursos.ps1"]},
+    "soluciones": {"desc": "sistemas completos y referencias al proyecto real", "archivos": ["usuarios (auth.py + api_auth.py)", "marketplace_p2p (marketplace.py + api_marketplace.py)", "venta_tokens (tokenomics.py + api_kbt.py)", "conexiones (shs.py + ws_handler.py)", "dashboard_usuario (dashboard_base.html + websocket_ejemplo.md)"]},
+    "librerias_externas": {"desc": "documentación y ejemplos de integración", "archivos": ["lista_librerias.md", "test_api.http", "fastapi_users.md", "websockets.md"]}
+  },
+  "nota": "cada carpeta tiene un README.md con detalles. la IA debe leer solo este indice_general.json para saber que existe, y abrir unicamente el archivo que necesita."
 }

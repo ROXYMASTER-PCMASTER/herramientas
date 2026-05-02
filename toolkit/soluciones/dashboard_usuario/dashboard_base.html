@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Usuario - ROXYMASTER</title>
+<style>
+  :root { --bg: #0d1117; --card: #161b22; --text: #c9d1d9; --acento: #8b5cf6; --borde: #30363d; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
+  .card { background: var(--card); border: 1px solid var(--borde); border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+  .btn { background: var(--acento); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
+  .tabs { display: flex; gap: 4px; margin-bottom: 16px; }
+  .tab { padding: 8px 16px; background: var(--card); border-radius: 8px 8px 0 0; cursor: pointer; }
+  .tab.active { background: var(--acento); }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div id="login-screen">
+  <div class="card" style="max-width:400px;margin:100px auto">
+    <h2>wafabot pcbot</h2>
+    <input id="email" placeholder="email" style="width:100%;padding:8px;margin-bottom:8px;background:var(--bg);border:1px solid var(--borde);color:var(--text)"><br>
+    <input id="password" type="password" placeholder="contraseña" style="width:100%;padding:8px;margin-bottom:8px;background:var(--bg);border:1px solid var(--borde);color:var(--text)"><br>
+    <button class="btn" onclick="login()" style="width:100%">iniciar sesión</button>
+    <p style="font-size:.8em;margin-top:8px"><a href="#" onclick="showRegister()" style="color:var(--acento)">registrarse</a></p>
+  </div>
+  <div id="register-screen" class="card hidden" style="max-width:400px;margin:100px auto">
+    <h2>registro</h2>
+    <input id="reg-email" placeholder="email" style="width:100%;padding:8px;margin-bottom:8px;background:var(--bg);border:1px solid var(--borde);color:var(--text)"><br>
+    <input id="reg-password" type="password" placeholder="contraseña" style="width:100%;padding:8px;margin-bottom:8px;background:var(--bg);border:1px solid var(--borde);color:var(--text)"><br>
+    <button class="btn" onclick="register()" style="width:100%">registrarse</button>
+  </div>
+</div>
+<div id="dashboard-screen" class="hidden">
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('panel')">panel</div>
+    <div class="tab" onclick="switchTab('perfiles')">mis perfiles</div>
+    <div class="tab" onclick="switchTab('pcs')">mis pcs</div>
+    <div class="tab" onclick="switchTab('ordenar')">ordenar</div>
+    <div class="tab" onclick="switchTab('marketplace')">marketplace</div>
+    <div class="tab" onclick="switchTab('referidos')">referidos</div>
+    <div class="tab" onclick="switchTab('mensajes')">mensajes</div>
+  </div>
+  <div id="tab-panel" class="card">cargando panel...</div>
+  <div id="tab-perfiles" class="card hidden">cargando perfiles...</div>
+  <div id="tab-pcs" class="card hidden">cargando pcs...</div>
+  <div id="tab-ordenar" class="card hidden">formulario de orden...</div>
+  <div id="tab-marketplace" class="card hidden">cargando marketplace...</div>
+  <div id="tab-referidos" class="card hidden">cargando referidos...</div>
+  <div id="tab-mensajes" class="card hidden">cargando mensajes...</div>
+</div>
+<script>
+const API = 'http://192.168.1.17:8086/api';
+let token = '';
+function showRegister() { document.getElementById('register-screen').classList.toggle('hidden'); }
+async function login() {
+  const r = await fetch(API+'/login', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email:document.getElementById('email').value, password:document.getElementById('password').value})});
+  const d = await r.json();
+  if(d.token) { token = d.token; document.getElementById('login-screen').classList.add('hidden'); document.getElementById('dashboard-screen').classList.remove('hidden'); loadPanel(); }
+}
+async function register() {
+  const r = await fetch(API+'/register', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email:document.getElementById('reg-email').value, password:document.getElementById('reg-password').value})});
+  const d = await r.json();
+  if(d.token) { token = d.token; document.getElementById('login-screen').classList.add('hidden'); document.getElementById('dashboard-screen').classList.remove('hidden'); loadPanel(); }
+}
+function switchTab(t) {
+  document.querySelectorAll('[id^=tab-]').forEach(e=>e.classList.add('hidden'));
+  document.getElementById('tab-'+t).classList.remove('hidden');
+  document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));
+  event.target.classList.add('active');
+}
+async function loadPanel() {
+  const r = await fetch(API+'/mi_estado', {headers:{'Authorization':'Bearer '+token}});
+  const d = await r.json();
+  document.getElementById('tab-panel').innerHTML = '<h3>bienvenido, '+d.username+'</h3><p>saldo: '+d.balance+' KBT</p>';
+}
+</script>
+</body>
+</html>

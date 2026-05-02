@@ -1,0 +1,12 @@
+﻿### Login
+POST http://localhost:8086/api/login
+Content-Type: application/json
+
+{"email":"admin@roxymaster.local","password":"admin123"}
+
+### Health
+GET http://localhost:8086/api/health
+
+### Dashboard
+GET http://localhost:8086/api/dashboard
+Authorization: Bearer {{token}}

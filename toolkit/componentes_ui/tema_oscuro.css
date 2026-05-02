@@ -1,0 +1,49 @@
+﻿/* tema_oscuro.css - variables css del tema oscuro de roxymaster */
+:root {
+  --bg-primario: #0d1117;
+  --bg-secundario: #161b22;
+  --texto: #c9d1d9;
+  --acento: #58a6ff;
+  --borde: #30363d;
+  --verde: #3fb950;
+  --amarillo: #d2991d;
+  --rojo: #da3633;
+}
+body.tema-oscuro {
+  background: var(--bg-primario);
+  color: var(--texto);
+  font-family: "Segoe UI", sans-serif;
+}
+.card {
+  background: var(--bg-secundario);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 16px;
+}
+.btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--borde);
+  background: #21262d;
+  color: var(--texto);
+  cursor: pointer;
+}
+.btn-primario {
+  background: #238636;
+  color: #fff;
+  border-color: #238636;
+}
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+}
+.tabla th {
+  text-align: left;
+  color: #8b949e;
+  padding: 8px;
+  border-bottom: 1px solid var(--borde);
+}
+.tabla td {
+  padding: 8px;
+  border-bottom: 1px solid #21262d;
+}

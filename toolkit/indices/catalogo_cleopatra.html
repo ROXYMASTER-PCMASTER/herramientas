@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>toolkit roxymaster v8.3</title>
+<link rel="stylesheet" href="../portales/cleopatra/assets/css/style.css">
+<style>
+  body { font-family: 'Segoe UI', sans-serif; }
+  .folder { cursor: pointer; padding: 12px; border-bottom: 1px solid #30363d; color: #c9d1d9; }
+  .folder:hover { background: #161b22; }
+  .file { padding: 6px 24px; color: #8b949e; font-size: 0.9em; }
+  .size { float: right; color: #58a6ff; }
+  .date { float: right; margin-right: 20px; color: #484f58; }
+  h2 { color: #8b5cf6; }
+</style>
+</head>
+<body>
+<div style="max-width:800px;margin:0 auto;padding:20px">
+<h2>toolkit roxymaster v8.3</h2>
+<div id="contenido">cargando...</div>
+</div>
+<script>
+fetch('../indices/indice_general.json')
+  .then(r => r.json())
+  .then(data => {
+    let html = '';
+    for (let carpeta in data.carpetas) {
+      html += '<div class="folder" onclick="toggle(this)">' + carpeta + '</div>';
+      html += '<div class="files" style="display:none">';
+      let info = data.carpetas[carpeta];
+      if (typeof info === 'object' && info.archivos) {
+        info.archivos.forEach(f => html += '<div class="file">' + f + '</div>');
+      } else {
+        html += '<div class="file">' + info + '</div>';
+      }
+      html += '</div>';
+    }
+    document.getElementById('contenido').innerHTML = html;
+  });
+
+function toggle(el) {
+  let files = el.nextElementSibling;
+  files.style.display = files.style.display === 'none' ? 'block' : 'none';
+}
+</script>
+</body>
+</html>
